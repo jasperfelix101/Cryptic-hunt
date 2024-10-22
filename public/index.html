@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptic Hunt</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #1f1c2c, #928dab);
+            color: white;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 100%;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #6A0572;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #45013b;
+        }
+
+        .level-message {
+            font-size: 24px;
+            margin-bottom: 20px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Cryptic Hunt</h1>
+        <p class="level-message" id="level-question">Solve this first riddle: I speak without a mouth and hear without ears. What am I?</p>
+
+        <input type="text" id="answer-input" placeholder="Enter your answer here..." />
+        <button onclick="submitAnswer()">Submit Answer</button>
+    </div>
+
+    <script>
+        const username = prompt("Enter your username: ");  // Get username from user
+
+        // Function to get the current level question from the server
+        function getCurrentQuestion() {
+            fetch(`/get-question?username=${username}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById("level-question").innerText = data.currentQuestion;
+                });
+        }
+
+        // Call this function when the page loads
+        window.onload = getCurrentQuestion;
+
+        // Function to handle answer submission
+        function submitAnswer() {
+            const userAnswer = document.getElementById("answer-input").value.trim().toLowerCase();
+
+            fetch('/submit-answer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, answer: userAnswer })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.correct) {
+                    alert(data.message);
+                    if (data.nextQuestion) {
+                        document.getElementById("level-question").innerText = data.nextQuestion;
+                    }
+                } else {
+                    alert(data.message);
+                }
+                document.getElementById("answer-input").value = "";  // Clear input field
+            });
+        }
+    </script>
+
+</body>
+</html>
