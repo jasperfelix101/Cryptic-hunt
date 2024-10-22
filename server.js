@@ -68,3 +68,19 @@ app.get('/leaderboard', (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });
+
+// API to get the current level's question
+app.post('/get-level', (req, res) => {
+    const { username } = req.body;
+
+    // If user doesn't exist, start at level 0
+    if (!users[username]) {
+        users[username] = { level: 0 };
+    }
+
+    const currentLevel = users[username].level;
+
+    res.json({
+        question: questions[currentLevel]
+    });
+});
